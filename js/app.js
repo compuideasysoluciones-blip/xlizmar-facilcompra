@@ -393,6 +393,14 @@ async function submitAdminProduct(e) {
         const targetQ = Number(document.getElementById('admin-target').value);
         const inventoryStock = Number(document.getElementById('admin-stock').value || targetQ);
         
+        // Bloqueo de Negocio: Validar que la tienda tenga cómo surtir mínimo 1 grupo
+        if (inventoryStock < targetQ) {
+            alert(`⚠️ Error Comercial: El Almacén debe tener en inventario físico por lo menos ${targetQ} unidades (el tamaño de un grupo exacto) para poder habilitar esta alianza.`);
+            btn.innerText = 'Publicar Alianza Mundial 🔥';
+            btn.disabled = false;
+            return;
+        }
+
         // Archivos
         const fileInput = document.getElementById('admin-image-file');
         const file = fileInput.files[0];
