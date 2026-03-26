@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XLizmar Fácil Compra - Compras en Equipo</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+<body>
+    
+    <nav class="navbar">
+        <div class="brand" onclick="triggerAdminMode()" style="cursor: pointer; user-select: none;">XLizmar Fácil Compra</div>
+        <div id="user-menu">
+            <button class="btn-primary" style="padding: 0.5rem 1.5rem; font-size: 0.9rem;" onclick="openAuthModal()">Iniciar Sesión</button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Panel de Administración (Inactivo por defecto) -->
+        <section id="admin-panel" class="hidden" style="background: rgba(14, 165, 233, 0.05); border: 1px solid var(--brand-500); border-radius: 20px; margin: 2rem 5%; padding: 3rem;">
+            <h2 style="text-align: center; margin-bottom: 2rem; color: var(--brand-500); font-size: 1.8rem;">
+                <i data-lucide="shield-check" style="width:28px; display:inline; vertical-align:middle;"></i> Modo Dios (Crear Producto)
+            </h2>
+            <form id="admin-form" onsubmit="submitAdminProduct(event)" style="display: grid; gap: 1.5rem; max-width: 600px; margin: 0 auto;">
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--brand-500); font-weight: bold;">Título llamativo del Producto</label>
+                    <input type="text" id="admin-title" placeholder="Ej: Moto Pulsar Duke 200 CC" required style="width:100%; padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-top:0.5rem;">
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--brand-500); font-weight: bold;">Precio Comercial Final (Factura Real en Pesos)</label>
+                    <input type="number" id="admin-price" placeholder="Ej: 14000000" required style="width:100%; padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-top:0.5rem;">
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <div style="flex:1;">
+                        <label style="font-size: 0.8rem; color: #10b981; font-weight: bold;">% Descuento Cliente</label>
+                        <input type="number" id="admin-discount" placeholder="Ej: 35" value="35" required style="width:100%; padding:1rem; border-radius:12px; border:1px dashed #10b981; background:rgba(16, 185, 129, 0.1); color:white; margin-top:0.5rem;">
+                    </div>
+                    <div style="flex:1;">
+                        <label style="font-size: 0.8rem; color: #f59e0b; font-weight: bold;">% Comisión XLizmar</label>
+                        <input type="number" id="admin-fee" placeholder="Ej: 30" value="30" required style="width:100%; padding:1rem; border-radius:12px; border:1px dashed #f59e0b; background:rgba(245, 158, 11, 0.1); color:white; margin-top:0.5rem;">
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--brand-500); font-weight: bold;">Target (Volumen Meta de compradores por grupo)</label>
+                    <input type="number" id="admin-target" placeholder="Ej: 10 personas" required style="width:100%; padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-top:0.5rem;">
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--brand-500); font-weight: bold;">Inventario Físico Total (Bodega)</label>
+                    <input type="number" id="admin-stock" placeholder="Ej: 50 (Televisores totales)" required style="width:100%; padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-top:0.5rem;">
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--brand-500); font-weight: bold;">Subir fotografía del producto desde tu celular/PC (.jpg/.png)</label>
+                    <input type="file" id="admin-image-file" accept="image/png, image/jpeg, image/webp" required style="width:100%; padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-top:0.5rem; cursor: pointer;">
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--brand-500); font-weight: bold;">Nombre del Almacén Aliado (Ej: Alkosto, K-Tronix)</label>
+                    <input type="text" id="admin-store-name" placeholder="Ej: Alkosto" required style="width:100%; padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-top:0.5rem;">
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--brand-500); font-weight: bold;">Teléfono Público u Oficina del Almacén</label>
+                    <input type="tel" id="admin-store-phone" placeholder="Ej: 3001234567" required style="width:100%; padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-top:0.5rem;">
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; color: var(--brand-500); font-weight: bold;">Subir Logo del Almacén (.png/.jpg)</label>
+                    <input type="file" id="admin-store-logo" accept="image/png, image/jpeg, image/webp" required style="width:100%; padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-top:0.5rem; cursor: pointer;">
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="submit" class="btn-primary" id="btn-admin-submit" style="flex:1; padding: 1.2rem;">Publicar Alianza Mundial 🔥</button>
+                    <button type="button" onclick="closeAdminMode()" style="padding: 1.2rem; border-radius: 99px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; font-weight: bold; cursor: pointer;">Ocultar Panel</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="hero" style="min-height: 50vh;">
+            <h1>El poder de comprar <br><span class="highlight-text">en equipo.</span></h1>
+            <p>Únete a grupos de compra y desbloquea precios mayoristas directos de fábrica en tus marcas favoritas. Si el grupo se llena, todos ganan.</p>
+        </section>
+
+        <!-- Catálogo de Compras en Grupo -->
+        <section class="catalog" id="catalog-container">
+            <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2rem;">Consigue precios de fábrica 🔥</h2>
+            
+            <div class="grid" id="catalog-grid">
+                <!-- Se inyectarán desde Supabase -->
+                <div style="text-align: center; width: 100%; grid-column: 1 / -1; padding: 2rem;">
+                    <i data-lucide="loader" style="animation: spin 1s linear infinite;"></i>
+                    <p>Cargando ofertas en equipo...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Autenticación Premium -->
+    <div id="auth-modal" class="modal-backdrop hidden">
+        <div class="modal-container">
+            <button class="modal-close" onclick="closeAuthModal()"><i data-lucide="x" style="width:20px;"></i></button>
+            <div class="modal-header">
+                <h2 id="modal-title">Bienvenido a XLizmar</h2>
+                <p id="modal-subtitle">Inicia sesión para congelar tus precios</p>
+            </div>
+            
+            <div class="modal-tabs">
+                <button class="tab active" id="tab-login" onclick="switchAuthTab('login')">Ingresar</button>
+                <button class="tab" id="tab-register" onclick="switchAuthTab('register')">Registrarse</button>
+            </div>
+
+            <!-- Formulario de Login -->
+            <form id="login-form" class="auth-form" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="login-email" required placeholder="tu@correo.com">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn-primary w-full mt-4" id="btn-login-submit">Entrar a mi cuenta</button>
+            </form>
+
+            <!-- Formulario de Registro -->
+            <form id="register-form" class="auth-form hidden" onsubmit="handleRegister(event)">
+                <div class="input-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="reg-name" required placeholder="Ej: Juan Pérez">
+                </div>
+                <div class="input-group">
+                    <label>Cédula/Documento <span style="font-size:0.7rem; color:var(--brand-500);">(Seguridad Antifraude)</span></label>
+                    <input type="text" id="reg-document" required placeholder="1234567890">
+                </div>
+                <div class="input-group">
+                    <label>Teléfono (WhatsApp)</label>
+                    <input type="tel" id="reg-phone" required placeholder="3001234567">
+                </div>
+                <div class="input-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="reg-email" required placeholder="tu@correo.com">
+                </div>
+                <div class="input-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="reg-password" required placeholder="Mínimo 6 caracteres" minlength="6">
+                </div>
+                <button type="submit" class="btn-primary w-full mt-4" id="btn-reg-submit">Crear cuenta segura</button>
+                <p class="terms-text" style="font-size:0.7rem; text-align:center; margin-top:10px; color:var(--text-secondary);">Al registrarte, aceptas los términos y la política de privacidad de la comunidad XLizmar.</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Recibo Oficial (Ticket) -->
+    <div id="receipt-modal" class="modal-backdrop hidden" style="z-index: 9999;">
+        <div class="modal-container" id="printable-receipt" style="background: white; color: #1e293b; max-width: 450px; text-align: center; border-radius: 12px; padding: 2rem; border-top: 8px solid var(--brand-500); position: relative;">
+            <button class="modal-close" style="color:#1e293b; position:absolute; right:15px; top:15px; background:transparent; border:none; cursor:pointer;" onclick="closeReceiptModal()"><i data-lucide="x" style="width:24px;"></i></button>
+            <div style="margin-bottom: 1rem;">
+                <i data-lucide="check-circle" style="width: 50px; height: 50px; color: #10b981; margin: 0 auto;"></i>
+            </div>
+            <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.2rem;">Recibo de Pago Oficial</h2>
+            <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 1.5rem;">Plataforma XLizmar Fácil Compra</p>
+            
+            <div style="text-align: left; background: #f8fafc; padding: 1.2rem; border-radius: 8px; font-size: 0.9rem; line-height: 1.6; font-family: monospace; border: 1px dashed #cbd5e1; margin-bottom: 1.5rem;">
+                <p><strong>Fecha:</strong> <span id="r-date">...</span></p>
+                <p><strong>ID Transacción:</strong> <span id="r-tx" style="word-break: break-all; font-size: 0.8rem; color:#64748b;">...</span></p>
+                <div style="border-bottom: 1px solid #e2e8f0; margin: 0.5rem 0;"></div>
+                <p><strong>Cliente:</strong> <span id="r-client">...</span></p>
+                <p><strong>Producto:</strong> <span id="r-product">...</span></p>
+                <div style="border-bottom: 1px solid #e2e8f0; margin: 0.5rem 0;"></div>
+                <p style="font-size: 1.2rem; font-weight: bold; text-align: right; color: #0f172a;">Total Pagado: <span id="r-total" style="color:var(--brand-500);">...</span></p>
+            </div>
+
+            <p id="r-message" style="font-size: 0.85rem; color: #334155; font-weight: 600; padding:10px; background: rgba(14, 165, 233, 0.1); border-radius: 8px; margin-bottom:1.5rem;">...</p>
+
+            <button onclick="closeReceiptModal()" class="btn-primary" style="width:100%; padding:1rem;">Entendido, guardar copia</button>
+        </div>
+    </div>
+
+    <!-- Supabase JS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Configuración y Conexión de App -->
+    <script src="./js/config.js"></script>
+    <script src="./js/supabase.js"></script>
+    <script src="./js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Billetera XLizmar</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- CSS (reusando el global) -->
+    <link rel="stylesheet" href="./css/index.css">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0 4rem 0;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(14, 165, 233, 0.15);
+            color: var(--brand-500);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .invoice-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .invoice-status-waiting { padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; background: rgba(245, 158, 11, 0.2); color: #f59e0b; font-weight: bold; }
+        .invoice-status-released { padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; background: rgba(16, 185, 129, 0.2); color: #10b981; font-weight: bold; }
+        
+        /* Barrita de progreso chiquita */
+        .mini-progress {
+            width: 150px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        .mini-progress-fill {
+            height: 100%;
+            background: var(--brand-500);
+            border-radius: 99px;
+        }
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar">
+        <div class="brand" onclick="window.location.href='index.html'" style="cursor: pointer; display: flex; align-items:center; gap:8px; padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); border-radius: 99px; font-size: 0.9rem; transition: 0.2s;">
+            <i data-lucide="x-circle" style="width:20px; color: #ef4444;"></i> Cerrar Billetera y Volver
+        </div>
+        <div id="user-menu">
+            <!-- Cargando estado del usurio... -->
+        </div>
+    </nav>
+
+    <main style="padding: 2rem 5%; max-width: 1200px; margin: 0 auto; padding-top: 100px;">
+        
+        <div style="border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2rem; margin-bottom: 2rem;">
+            <h1 style="font-size: 2.5rem; font-weight: 900;"><span class="highlight-text">Mi Billetera</span> de Inversión 💼</h1>
+            <p style="color: var(--text-secondary); margin-top: 10px; font-size: 1.1rem;">Tu dinero está congelado y seguro. Revisa el progreso en vivo de tus grupos.</p>
+        </div>
+
+        <!-- Estadísticas Superiores -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i data-lucide="wallet" style="width:28px;"></i></div>
+                <div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">Capital Congelado</p>
+                    <h2 id="total-invested" style="font-size: 1.8rem; font-weight: 900;">$0 COP</h2>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i data-lucide="users" style="width:28px;"></i></div>
+                <div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">Grupos Activos (En Espera)</p>
+                    <h2 id="active-groups" style="font-size: 1.8rem; font-weight: 900;">0</h2>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i data-lucide="package-check" style="width:28px;"></i></div>
+                <div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">Lotes Ganados (Liberados)</p>
+                    <h2 id="released-groups" style="font-size: 1.8rem; font-weight: 900; color: #10b981;">0</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Inversiones Activas -->
+        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;"><i data-lucide="hourglass" style="display:inline; vertical-align:middle; width:20px; color:var(--brand-500);"></i> Tus Posiciones en Espera</h2>
+        <div id="waiting-list" style="margin-bottom: 4rem;">
+            <div style="text-align: center; color: var(--text-secondary); padding: 3rem; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px;">
+                Cargando tu billetera...
+            </div>
+        </div>
+
+        <!-- Historial de Cosas Liberadas -->
+        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;"><i data-lucide="check-circle" style="display:inline; vertical-align:middle; width:20px; color:#10b981;"></i> Historial de Compras Exitosas</h2>
+        <div id="released-list" style="margin-bottom: 3rem;">
+            <div style="text-align: center; color: var(--text-secondary); padding: 3rem; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px;">
+                Cargando historial...
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button onclick="window.location.href='index.html'" style="padding: 1rem 3rem; font-size: 1.1rem; border-radius: 99px; border: 2px solid var(--brand-500); background: transparent; color: white; cursor: pointer; font-weight: bold; transition: 0.3s;">
+                Cerrar Billetera
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Modal de Recibo Oficial (Ticket) para REIMPRESIÓN -->
+    <div id="receipt-modal" class="modal-backdrop hidden" style="z-index: 9999; display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem;">
+        <div class="modal-container" id="printable-receipt" style="background: white; color: #1e293b; width: 100%; max-width: 450px; text-align: center; border-radius: 12px; padding: 2rem; border-top: 8px solid var(--brand-500); position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            <button class="modal-close" style="color:#1e293b; position:absolute; right:15px; top:15px; background:transparent; border:none; cursor:pointer;" onclick="closeReceiptModal()"><i data-lucide="x" style="width:24px;"></i></button>
+            <div style="margin-bottom: 1rem;">
+                <i data-lucide="check-circle" style="width: 50px; height: 50px; color: #10b981; margin: 0 auto;"></i>
+            </div>
+            <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.2rem;">Recibo de Pago Oficial</h2>
+            <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 1.5rem;">Copia Generada - Plataforma XLizmar</p>
+            
+            <div style="text-align: left; background: #f8fafc; padding: 1.2rem; border-radius: 8px; font-size: 0.9rem; line-height: 1.6; font-family: monospace; border: 1px dashed #cbd5e1; margin-bottom: 1.5rem;">
+                <p><strong>Fecha:</strong> <span id="r-date">...</span></p>
+                <p><strong>ID Transacción:</strong> <span id="r-tx" style="word-break: break-all; font-size: 0.8rem; color:#64748b;">...</span></p>
+                <div style="border-bottom: 1px solid #e2e8f0; margin: 0.5rem 0;"></div>
+                <p><strong>Cliente:</strong> <span id="r-client">...</span></p>
+                <p><strong>Producto:</strong> <span id="r-product">...</span></p>
+                <div style="border-bottom: 1px solid #e2e8f0; margin: 0.5rem 0;"></div>
+                <p style="font-size: 1.2rem; font-weight: bold; text-align: right; color: #0f172a;">Total Pagado: <span id="r-total" style="color:var(--brand-500);">...</span></p>
+            </div>
+
+            <p id="r-message" style="font-size: 0.85rem; color: #334155; font-weight: 600; padding:10px; background: rgba(14, 165, 233, 0.1); border-radius: 8px; margin-bottom:1.5rem;">Aporte verificado por SuperSociedades y garantizado por XLizmar.</p>
+
+            <button onclick="window.print()" class="btn-primary" style="width:100%; padding:1rem; margin-bottom: 0.5rem;"><i data-lucide="printer" style="width:18px; display:inline; margin-right:5px;"></i> Imprimir / PDF</button>
+            <button onclick="closeReceiptModal()" style="width:100%; padding:0.8rem; border-radius:8px; border:1px solid #cbd5e1; background:transparent; color:#64748b; font-weight:bold; cursor:pointer;">Cerrar Vista</button>
+        </div>
+    </div>
+
+    <!-- Supabase JS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Configuración y Conexión -->
+    <script src="./js/config.js"></script>
+    <script src="./js/supabase.js"></script>
+    <script src="./js/perfil.js"></script>
+</body>
+</html>

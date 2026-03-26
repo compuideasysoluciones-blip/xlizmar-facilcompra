@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Almacenes Oficiales - XLizmar</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+<body style="background-color: #0f172a; min-height: 100vh; display:flex; flex-direction:column;">
+    
+    <nav class="navbar" style="border-bottom: 2px solid var(--brand-500);">
+        <div class="brand">
+            <i data-lucide="shield-check" style="width:24px; display:inline; vertical-align:middle;"></i> Portal de Aliados Comerciales
+        </div>
+    </nav>
+
+    <main style="flex: 1; display:flex; align-items:center; justify-content:center; padding: 2rem;">
+        
+        <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 3rem; width: 100%; max-width: 500px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            
+            <div style="text-align:center; margin-bottom:2rem;">
+                <i data-lucide="store" style="width:60px; height:60px; color:var(--brand-500); margin:0 auto;"></i>
+                <h1 style="font-size: 1.8rem; margin-top:1rem;">Control de Despachos</h1>
+                <p style="color:var(--text-secondary); font-size:0.9rem;">Área restringida para empleados autorizados de almacenes asociados. Ingrese los datos de la ventanilla del cliente.</p>
+            </div>
+
+            <!-- Formulario de Consulta -->
+            <form id="despacho-form" onsubmit="consultarRetiro(event)">
+                <div style="margin-bottom: 1.2rem;">
+                    <label style="display:block; font-size:0.85rem; font-weight:700; color:var(--text-secondary); margin-bottom:5px;">Contraseña Asignada al Almacén</label>
+                    <input type="password" id="d-clave" required placeholder="Clave Aliado" style="width:100%; padding:1rem; border-radius:10px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:white; font-family:monospace;">
+                </div>
+                <div style="margin-bottom: 1.2rem;">
+                    <label style="display:block; font-size:0.85rem; font-weight:700; color:var(--text-secondary); margin-bottom:5px;">Cédula Física del Cliente</label>
+                    <input type="text" id="d-documento" required placeholder="Ej: 1122334455" style="width:100%; padding:1rem; border-radius:10px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:white; font-family:monospace; font-size:1.2rem; letter-spacing:2px;">
+                </div>
+                <div style="margin-bottom: 2rem;">
+                    <label style="display:block; font-size:0.85rem; font-weight:700; color:var(--brand-500); margin-bottom:5px;">PIN de Retiro XLizmar (6 Caracteres)</label>
+                    <input type="text" id="d-pin" required placeholder="Ej: AX9B2P" maxlength="6" style="text-transform:uppercase; width:100%; padding:1rem; border-radius:10px; background:rgba(14, 165, 233, 0.1); border:1px dashed var(--brand-500); color:white; font-family:monospace; font-size:1.5rem; letter-spacing:5px; text-align:center;">
+                </div>
+                
+                <button type="submit" id="btn-consultar" class="btn-primary" style="width:100%; padding:1.2rem; font-size:1.1rem;"><i data-lucide="search" style="width:18px; display:inline; margin-right:5px;"></i> Validar Autenticidad en Servidor</button>
+            </form>
+
+            <!-- Resultado de la Consulta (Oculto inicialmente) -->
+            <div id="resultado-panel" style="display:none; margin-top:2rem; padding:1.5rem; border-radius:12px; border:2px solid #10b981; background:rgba(16, 185, 129, 0.1);">
+                <div style="text-align:center; color:#10b981; font-weight:900; margin-bottom:1rem;">
+                    <i data-lucide="check-circle" style="width:40px; height:40px; margin:0 auto;"></i>
+                    <p style="margin-top:5px;">PRODUCTO LIBERADO VALIDADO</p>
+                </div>
+                
+                <div style="background:rgba(0,0,0,0.3); padding:1rem; border-radius:8px; font-family:monospace; font-size:0.9rem; margin-bottom:1.5rem;">
+                    <p style="color:var(--text-secondary); margin-bottom:8px;">Cliente Autorizado:</p>
+                    <p id="res-cliente" style="font-weight:bold; font-size:1.1rem; color:white; margin-bottom:15px;"></p>
+                    
+                    <p style="color:var(--text-secondary); margin-bottom:8px;">Debe Entregar:</p>
+                    <p id="res-producto" style="font-weight:bold; font-size:1.1rem; color:var(--brand-500);"></p>
+
+                    <input type="hidden" id="res-queue-id">
+                </div>
+
+                <button onclick="firmarDespacho()" id="btn-despachar" style="width:100%; padding:1.2rem; font-size:1.1rem; background:#10b981; color:white; font-weight:900; border:none; border-radius:8px; cursor:pointer;" onMouseOver="this.style.background='#059669'" onMouseOut="this.style.background='#10b981'">
+                    <i data-lucide="box" style="width:18px; display:inline; margin-right:5px;"></i> MARCAR COMO ENTREGADO
+                </button>
+                <div style="text-align:center; margin-top:10px;">
+                    <a href="#" onclick="reiniciarBodega(event)" style="color:var(--text-secondary); font-size:0.8rem; text-decoration:none;">Cancelar y buscar otro cliente</a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Supabase JS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="./js/config.js"></script>
+    <script src="./js/supabase.js"></script>
+    <script src="./js/despachos.js"></script>
+</body>
+</html>
