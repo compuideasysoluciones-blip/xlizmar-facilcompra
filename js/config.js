@@ -1,3 +1,8 @@
+/**
+ * @project: XLizmar Fácil Compra
+ * @copyright: © 2026 Compuideas y Soluciones. Todos los derechos reservados.
+ * @author: Compuideas y Soluciones
+ */
 // js/config.js
 // Configuración centralizada de XLizmar Fácil Compra
 

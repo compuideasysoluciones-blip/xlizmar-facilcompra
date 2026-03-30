@@ -1,4 +1,9 @@
-// js/supabase.js
+/**
+ * @project: XLizmar Fácil Compra
+ * @copyright: © 2026 Compuideas y Soluciones. Todos los derechos reservados.
+ * @author: Compuideas y Soluciones
+ */
+
 // Archivo puente que conecta nuestro frontend con el backend
 
 // Inicializando el cliente de Supabase

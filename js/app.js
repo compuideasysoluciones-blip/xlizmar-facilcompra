@@ -1,3 +1,9 @@
+/**
+ * @project: XLizmar Fácil Compra
+ * @copyright: © 2026 Compuideas y Soluciones. Todos los derechos reservados.
+ * @author: Compuideas y Soluciones
+ */
+
 document.addEventListener('DOMContentLoaded', async () => {
     // Inicializar iconos de Lucide
     lucide.createIcons();
@@ -62,7 +68,10 @@ async function loadCatalog() {
                         <div style="display:flex; align-items:center; justify-content: space-between; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.08);">
                             <div style="display:flex; flex-direction:column; gap:3px;">
                                 <span style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--brand-500); font-weight:900;"><i data-lucide="award" style="width:12px; display:inline;"></i> ALIANZA OFICIAL</span>
-                                <span style="font-size:1rem; font-weight:700; color:white;">XLizmar & ${storeName}</span>
+                                <div style="display:flex; flex-direction:column; line-height: 1.2;">
+                                    <span style="font-size:1rem; font-weight:700; color:white;">XLizmar & ${storeName}</span>
+                                    <span style="font-size:0.65rem; font-weight:800; color:var(--brand-500); letter-spacing:0.5px;">FÁCIL COMPRA</span>
+                                </div>
                                 <a href="tel:${storePhone}" style="font-size:0.75rem; color:#10b981; text-decoration:none; margin-top:2px;">
                                     <i data-lucide="phone" style="width:12px; display:inline; vertical-align:middle;"></i> Llama a su Oficina: ${storePhone}
                                 </a>
@@ -75,8 +84,8 @@ async function loadCatalog() {
 
                         <h3>${p.title}</h3>
                         <div class="pricing">
-                            <span class="retail-price">Precio Regular: $${Number(p.retail_price).toLocaleString('es-CO')}</span>
-                            <span class="group-price">Precio de Grupo: $${groupPrice.toLocaleString('es-CO')}</span>
+                            <span class="retail-price">Precio Regular: $${Number(p.retail_price).toLocaleString('es-CO')} <span style="font-size: 0.7em; opacity: 0.8;">(IVA Incluido)</span></span>
+                            <span class="group-price">Precio de Grupo: $${groupPrice.toLocaleString('es-CO')} <span style="font-size: 0.7em; opacity: 0.8;">(IVA Incluido)</span></span>
                         </div>
                         
                         <div class="progress-section">

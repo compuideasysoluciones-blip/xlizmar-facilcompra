@@ -1,93 +1,85 @@
+/**
+ * @project: XLizmar Fácil Compra
+ * @copyright: © 2026 Compuideas y Soluciones. Todos los derechos reservados.
+ * @author: Compuideas y Soluciones
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
 });
 
+// Función para consultar retiro con PIN
 async function consultarRetiro(e) {
     e.preventDefault();
-    if (!window.supabaseClient) return alert('No hay conexión a la central de datos.');
-
     const clave = document.getElementById('d-clave').value;
     const documento = document.getElementById('d-documento').value;
-    const pin = document.getElementById('d-pin').value;
-    const btn = document.getElementById('btn-consultar');
-
-    btn.innerText = "Consultando con Satélite...";
+    const pin = document.getElementById('d-pin').value.toUpperCase();
+    
+    let btn = document.getElementById('btn-consultar');
+    btn.innerText = "Buscando en servidor...";
     btn.disabled = true;
 
     try {
-        const { data, error } = await window.supabaseClient.rpc('consultar_despacho_aliado', {
-            p_clave_acceso: clave,
-            p_document_id: documento,
-            p_claim_pin: pin
+        const { data, error } = await window.supabaseClient.rpc('validar_pin_despacho', {
+            p_clave_aliado: clave,
+            p_documento_cliente: documento,
+            p_pin_retiro: pin
         });
 
         if (error) throw error;
 
         if (data.success) {
-            // Ocultamos formulario, mostramos el acta
+            // Mostrar resultados
             document.getElementById('despacho-form').style.display = 'none';
             document.getElementById('resultado-panel').style.display = 'block';
-
-            document.getElementById('res-cliente').innerText = data.client_name;
-            document.getElementById('res-producto').innerText = data.product + " (Inventario de " + data.store + ")";
+            
+            document.getElementById('res-cliente').innerText = data.full_name;
+            document.getElementById('res-producto').innerText = data.product_title;
             document.getElementById('res-queue-id').value = data.queue_id;
-
+            
+            lucide.createIcons();
         } else {
-            // Un error del sistema o PIN ya cobrado
-            alert(data.error);
-            document.getElementById('d-pin').value = ''; // Limpiamos el PIN por si se equivocaron tipeando
+            alert("❌ Denegado: " + data.error);
         }
-
-    } catch(err) {
-        alert("❌ Error de comunicación con la base principal: " + err.message);
+    } catch (err) {
+        alert("❌ Error de red: " + err.message);
     } finally {
-        btn.innerHTML = `<i data-lucide="search" style="width:18px; display:inline; margin-right:5px;"></i> Validar Autenticidad en Servidor`;
+        btn.innerText = "Validar Autenticidad en Servidor";
         btn.disabled = false;
-        lucide.createIcons();
     }
 }
 
 async function firmarDespacho() {
-    let confirmacion = confirm("⚠️ ATENCIÓN BODEGA:\n\n¿Estás seguro que el cliente ya tiene el Producto físico y firmaron/facturaron la salida del inventario? Esta acción INHABILITA el PIN para siempre.");
-    
-    if(!confirmacion) return;
-
-    const clave = document.getElementById('d-clave').value;
     const queueId = document.getElementById('res-queue-id').value;
-    const btn = document.getElementById('btn-despachar');
-
-    btn.innerText = "Firmando Electrónicamente...";
+    const clave = document.getElementById('d-clave').value;
+    
+    let btn = document.getElementById('btn-despachar');
+    btn.innerText = "Firmando salida...";
     btn.disabled = true;
 
     try {
-        const { data, error } = await window.supabaseClient.rpc('entregar_articulo_aliado', {
-            p_clave_acceso: clave,
-            p_queue_id: queueId
+        const { data, error } = await window.supabaseClient.rpc('confirmar_despacho_aliado', {
+            p_queue_id: queueId,
+            p_clave_aliado: clave
         });
 
         if (error) throw error;
 
         if (data.success) {
-            alert("🚚 ¡ÉXITO! " + data.message + "\n\nEl artículo ha sido descontado y el PIN inhabilitado.");
-            reiniciarBodega(new Event('click')); // Reseteamos al cajero para el siguiente que venga en la fila
+            alert("✅ ¡ÉXITO! Entrega el producto al cliente. El sistema ya marcó esta salida.");
+            location.reload();
         } else {
-            alert(data.error);
+            alert("❌ Error al firmar: " + data.error);
         }
-
-    } catch(err) {
-        alert("❌ Ocurrió un fallo registrando la entrega: " + err.message);
+    } catch (err) {
+        alert("❌ Error crítico: " + err.message);
     } finally {
-        btn.innerHTML = `<i data-lucide="box" style="width:18px; display:inline; margin-right:5px;"></i> MARCAR COMO ENTREGADO`;
+        btn.innerText = "MARCAR COMO ENTREGADO";
         btn.disabled = false;
-        lucide.createIcons();
     }
 }
 
 function reiniciarBodega(e) {
     if(e) e.preventDefault();
-    document.getElementById('d-documento').value = '';
-    document.getElementById('d-pin').value = '';
-    
-    document.getElementById('resultado-panel').style.display = 'none';
-    document.getElementById('despacho-form').style.display = 'block';
+    location.reload();
 }

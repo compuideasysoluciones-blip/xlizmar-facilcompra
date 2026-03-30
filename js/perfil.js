@@ -1,3 +1,9 @@
+/**
+ * @project: XLizmar Fácil Compra
+ * @copyright: © 2026 Compuideas y Soluciones. Todos los derechos reservados.
+ * @author: Compuideas y Soluciones
+ */
+
 document.addEventListener('DOMContentLoaded', async () => {
     lucide.createIcons();
     
