@@ -501,3 +501,49 @@ async function pauseAdminProduct(productId) {
         alert("❌ Error crítico en el servidor: " + err.message);
     }
 }
+
+// ------ LÓGICA DE RESUMEN FINANCIERO ------
+async function openFinanzasModal() {
+    if (!window.supabaseClient) return;
+    
+    document.getElementById('finanzas-modal').classList.remove('hidden');
+    document.getElementById('finanzas-facturado').innerText = "Calculando...";
+    document.getElementById('finanzas-ganado').innerText = "Calculando...";
+
+    try {
+        // Traemos todas las filas pagadas/postuladas en el sistema
+        const { data: queues, error } = await window.supabaseClient
+            .from('queues')
+            .select('amount_paid, platform_fee');
+
+        if (error) throw error;
+
+        let totalFacturado = 0;
+        let totalGanado = 0;
+
+        queues.forEach(q => {
+            totalFacturado += Number(q.amount_paid) || 0;
+            totalGanado += Number(q.platform_fee) || 0;
+        });
+
+        // Formateadora de moneda
+        const formatter = new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0
+        });
+
+        document.getElementById('finanzas-facturado').innerText = formatter.format(totalFacturado);
+        document.getElementById('finanzas-ganado').innerText = formatter.format(totalGanado);
+        
+    } catch (err) {
+        document.getElementById('finanzas-facturado').innerText = "Error";
+        document.getElementById('finanzas-ganado').innerText = "Error";
+        console.error("Error cargando finanzas:", err);
+    }
+}
+
+function closeFinanzasModal() {
+    document.getElementById('finanzas-modal').classList.add('hidden');
+}
+

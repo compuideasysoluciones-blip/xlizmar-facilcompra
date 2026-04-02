@@ -25,9 +25,13 @@
     <main>
         <!-- Panel de Administración (Inactivo por defecto) -->
         <section id="admin-panel" class="hidden" style="background: rgba(14, 165, 233, 0.05); border: 1px solid var(--brand-500); border-radius: 20px; margin: 2rem 5%; padding: 3rem;">
-            <h2 style="text-align: center; margin-bottom: 2rem; color: var(--brand-500); font-size: 1.8rem;">
-                <i data-lucide="shield-check" style="width:28px; display:inline; vertical-align:middle;"></i> Modo Dios (Crear Producto)
-            </h2>
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2 style="color: var(--brand-500); font-size: 1.8rem; display: inline-block; margin:0;">
+                    <i data-lucide="shield-check" style="width:28px; display:inline; vertical-align:middle;"></i> Modo Dios (Admin)
+                </h2>
+                <br>
+                <button type="button" onclick="openFinanzasModal()" class="btn-primary" style="margin-top: 1rem; background: #10b981; border: 1px solid #059669; font-size: 0.9rem; padding: 0.6rem 1.5rem; align-items:center; display:inline-flex; gap:0.5rem;"><i data-lucide="bar-chart-2" style="width:18px;"></i> Ver Resumen Financiero</button>
+            </div>
             <form id="admin-form" onsubmit="submitAdminProduct(event)" style="display: grid; gap: 1.5rem; max-width: 600px; margin: 0 auto;">
                 <div>
                     <label style="font-size: 0.8rem; color: var(--brand-500); font-weight: bold;">Título llamativo del Producto</label>
@@ -175,6 +179,31 @@
             <p id="r-message" style="font-size: 0.85rem; color: #334155; font-weight: 600; padding:10px; background: rgba(14, 165, 233, 0.1); border-radius: 8px; margin-bottom:1.5rem;">...</p>
 
             <button onclick="closeReceiptModal()" class="btn-primary" style="width:100%; padding:1rem;">Entendido, guardar copia</button>
+        </div>
+    </div>
+
+    <!-- Modal de Finanzas Modo Dios -->
+    <div id="finanzas-modal" class="modal-backdrop hidden" style="z-index: 9999;">
+        <div class="modal-container" style="background: #0f172a; border: 1px solid var(--brand-500); max-width: 600px;">
+            <button class="modal-close" onclick="closeFinanzasModal()"><i data-lucide="x" style="width:24px;"></i></button>
+            <div class="modal-header">
+                <h2><i data-lucide="bar-chart-2" style="width:24px; display:inline; vertical-align:middle;"></i> Resumen Financiero</h2>
+                <p>Métricas globales de facturación y ganancias</p>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem; margin-bottom: 2rem;">
+                <div style="background: rgba(14, 165, 233, 0.1); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(14, 165, 233, 0.3); text-align: center;">
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Caja Bruta Facturada</p>
+                    <h3 id="finanzas-facturado" style="font-size: 1.8rem; color: white;">...</h3>
+                </div>
+                <div style="background: rgba(16, 185, 129, 0.1); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); text-align: center;">
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Ganancia Libre (XLizmar)</p>
+                    <h3 id="finanzas-ganado" style="font-size: 1.8rem; color: #10b981;">...</h3>
+                </div>
+            </div>
+            <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                <p style="font-size: 0.8rem; color: var(--text-secondary); text-align: center;">Los cálculos incluyen todas las postulaciones pagadas.</p>
+            </div>
         </div>
     </div>
 
