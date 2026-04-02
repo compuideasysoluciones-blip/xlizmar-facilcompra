@@ -33,7 +33,7 @@ async function consultarRetiro(e) {
             document.getElementById('despacho-form').style.display = 'none';
             document.getElementById('resultado-panel').style.display = 'block';
             
-            document.getElementById('res-cliente').innerText = data.client_name;
+            document.getElementById('res-cliente').innerText = `${data.client_name} (CC. ${documento})`;
             document.getElementById('res-producto').innerText = data.product;
             document.getElementById('res-queue-id').value = data.queue_id;
             
