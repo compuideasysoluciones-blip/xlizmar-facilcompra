@@ -94,7 +94,9 @@ async function loadWalletStats(userId) {
                     .eq('product_id', q.product_id)
                     .eq('status', 'WAITING');
                 
-                let target = q.products.target_quantity || 10;
+                let pTitle = q.products?.title || 'Producto Retirado';
+                let pImage = q.products?.image_url || 'https://via.placeholder.com/150?text=No+Ref';
+                let target = q.products?.target_quantity || 10;
                 let current = count || 1;
                 let percent = Math.min(100, Math.round((current / target) * 100));
 
@@ -103,9 +105,9 @@ async function loadWalletStats(userId) {
                 wHtml += `
                     <div class="invoice-card">
                         <div style="display: flex; align-items: center; gap: 15px;">
-                            <img src="${q.products.image_url}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
+                            <img src="${pImage}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
                             <div>
-                                <h4 style="margin:0; font-size:1rem; font-weight:700;">${q.products.title}</h4>
+                                <h4 style="margin:0; font-size:1rem; font-weight:700;">${pTitle}</h4>
                                 <span style="font-size:0.7rem; color:var(--text-secondary); font-family:monospace;">ID: ${q.id} • Pagado el ${dateFmt}</span>
                             </div>
                         </div>
@@ -121,7 +123,7 @@ async function loadWalletStats(userId) {
                         <div style="text-align:right;">
                             <div style="font-size:0.8rem; color:var(--text-secondary);">Aporte Realizado</div>
                             <div style="font-size:1.2rem; font-weight:900; color:var(--brand-500);">$${Number(q.amount_paid).toLocaleString('es-CO')}</div>
-                            <button onclick="reprintReceipt('${q.id}', '${q.products.title}', ${q.amount_paid}, '${q.created_at}')" style="margin-top:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:white; padding:4px 10px; border-radius:6px; font-size:0.75rem; cursor:pointer;"><i data-lucide="receipt" style="width:12px; display:inline; margin-right:3px;"></i> Ver Recibo</button>
+                            <button onclick="reprintReceipt('${q.id}', '${pTitle.replace(/'/g, "\\'")}', ${q.amount_paid}, '${q.created_at}')" style="margin-top:10px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:white; padding:4px 10px; border-radius:6px; font-size:0.75rem; cursor:pointer;"><i data-lucide="receipt" style="width:12px; display:inline; margin-right:3px;"></i> Ver Recibo</button>
                         </div>
                     </div>
                 `;
@@ -135,13 +137,16 @@ async function loadWalletStats(userId) {
             rHtml = '<div style="text-align: center; color: var(--text-secondary); padding: 3rem; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px;">Aún no tienes productos que hayan cerrado su grupo exitosamente.</div>';
         } else {
             for (let q of released) {
+                let pTitle = q.products?.title || 'Producto Retirado';
+                let pImage = q.products?.image_url || 'https://via.placeholder.com/150?text=No+Ref';
                 let dateFmt = new Date(q.created_at).toLocaleDateString('es-CO');
+                
                 rHtml += `
                     <div class="invoice-card" style="border-left: 4px solid #10b981;">
                         <div style="display: flex; align-items: center; gap: 15px;">
-                            <img src="${q.products.image_url}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
+                            <img src="${pImage}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
                             <div>
-                                <h4 style="margin:0; font-size:1rem; font-weight:700;">${q.products.title}</h4>
+                                <h4 style="margin:0; font-size:1rem; font-weight:700;">${pTitle}</h4>
                                 <span style="font-size:0.7rem; color:var(--text-secondary); font-family:monospace;">ID: ${q.id} • Lote Liberado el ${dateFmt}</span>
                             </div>
                         </div>
@@ -157,7 +162,7 @@ async function loadWalletStats(userId) {
                         <div style="text-align:right;">
                             <div style="font-size:0.8rem; color:var(--text-secondary);">Aporte Exitoso</div>
                             <div style="font-size:1.2rem; font-weight:900; color:#10b981;">$${Number(q.amount_paid).toLocaleString('es-CO')}</div>
-                            <button onclick="reprintReceipt('${q.id}', '${q.products.title}', ${q.amount_paid}, '${q.created_at}')" style="margin-top:10px; background:rgba(16, 185, 129, 0.1); border:1px solid #10b981; color:#10b981; padding:4px 10px; border-radius:6px; font-size:0.75rem; cursor:pointer;"><i data-lucide="receipt" style="width:12px; display:inline; margin-right:3px;"></i> Ver Recibo</button>
+                            <button onclick="reprintReceipt('${q.id}', '${pTitle.replace(/'/g, "\\'")}', ${q.amount_paid}, '${q.created_at}')" style="margin-top:10px; background:rgba(16, 185, 129, 0.1); border:1px solid #10b981; color:#10b981; padding:4px 10px; border-radius:6px; font-size:0.75rem; cursor:pointer;"><i data-lucide="receipt" style="width:12px; display:inline; margin-right:3px;"></i> Ver Recibo</button>
                         </div>
                     </div>
                 `;
