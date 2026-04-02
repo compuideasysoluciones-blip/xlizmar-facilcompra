@@ -511,19 +511,30 @@ async function openFinanzasModal() {
     document.getElementById('finanzas-ganado').innerText = "Calculando...";
 
     try {
-        // Traemos todas las filas pagadas/postuladas en el sistema
+        // Traemos todas las filas pagadas/postuladas en el sistema (incluyendo nombre de producto cruzado)
         const { data: queues, error } = await window.supabaseClient
             .from('queues')
-            .select('amount_paid, platform_fee');
+            .select('amount_paid, platform_fee, products(title)');
 
         if (error) throw error;
 
         let totalFacturado = 0;
         let totalGanado = 0;
+        let pStats = {};
 
         queues.forEach(q => {
-            totalFacturado += Number(q.amount_paid) || 0;
-            totalGanado += Number(q.platform_fee) || 0;
+            let p = Number(q.amount_paid) || 0;
+            let f = Number(q.platform_fee) || 0;
+            
+            totalFacturado += p;
+            totalGanado += f;
+            
+            let pTitle = q.products?.title || 'Producto Generales / Eliminados';
+            if (!pStats[pTitle]) {
+                pStats[pTitle] = { facturado: 0, ganado: 0 };
+            }
+            pStats[pTitle].facturado += p;
+            pStats[pTitle].ganado += f;
         });
 
         // Formateadora de moneda
@@ -535,10 +546,38 @@ async function openFinanzasModal() {
 
         document.getElementById('finanzas-facturado').innerText = formatter.format(totalFacturado);
         document.getElementById('finanzas-ganado').innerText = formatter.format(totalGanado);
+
+        // Armado de Desglose UI
+        let desgloseHtml = '';
+        for (const [title, stats] of Object.entries(pStats)) {
+            desgloseHtml += `
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--brand-500);">
+                    <div style="flex: 2; padding-right:10px;">
+                        <span style="display:block; font-weight: 700; color: white; font-size: 0.9rem;">${title}</span>
+                    </div>
+                    <div style="flex: 1; text-align: right; margin-right: 1rem;">
+                        <span style="display:block; font-size: 0.75rem; color: var(--text-secondary);">Caja</span>
+                        <span style="font-weight: 600; color: white; font-size: 0.85rem;">${formatter.format(stats.facturado)}</span>
+                    </div>
+                    <div style="flex: 1; text-align: right;">
+                        <span style="display:block; font-size: 0.75rem; color: var(--text-secondary);">Comisión</span>
+                        <span style="font-weight: bold; color: #10b981; font-size: 0.85rem;">${formatter.format(stats.ganado)}</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (Object.keys(pStats).length === 0) {
+            desgloseHtml = '<p style="text-align: center; color: var(--text-secondary); font-size: 0.85rem;">No hay transacciones registradas aún.</p>';
+        }
+
+        document.getElementById('finanzas-desglose').innerHTML = desgloseHtml;
+        lucide.createIcons();
         
     } catch (err) {
         document.getElementById('finanzas-facturado').innerText = "Error";
         document.getElementById('finanzas-ganado').innerText = "Error";
+        document.getElementById('finanzas-desglose').innerHTML = '<p style="color:red; text-align:center;">Error al cargar datos de Base de Datos</p>';
         console.error("Error cargando finanzas:", err);
     }
 }
