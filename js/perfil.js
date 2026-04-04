@@ -94,7 +94,7 @@ async function loadWalletStats(userId) {
                     .eq('product_id', q.product_id)
                     .eq('status', 'WAITING');
                 
-                let pTitle = q.products?.title || 'Producto Retirado';
+                let pTitle = q.products?.title || 'Producto Adjudicado';
                 let pImage = q.products?.image_url || 'https://via.placeholder.com/150?text=No+Ref';
                 let target = q.products?.target_quantity || 10;
                 let current = count || 1;
@@ -137,7 +137,7 @@ async function loadWalletStats(userId) {
             rHtml = '<div style="text-align: center; color: var(--text-secondary); padding: 3rem; border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px;">Aún no tienes productos que hayan cerrado su grupo exitosamente.</div>';
         } else {
             for (let q of released) {
-                let pTitle = q.products?.title || 'Producto Retirado';
+                let pTitle = q.products?.title || 'Producto Adjudicado';
                 let pImage = q.products?.image_url || 'https://via.placeholder.com/150?text=No+Ref';
                 let dateFmt = new Date(q.created_at).toLocaleDateString('es-CO');
                 
