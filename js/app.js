@@ -529,7 +529,8 @@ async function openFinanzasModal() {
             totalFacturado += p;
             totalGanado += f;
             
-            let pTitle = q.products?.title || 'Producto Generales / Eliminados';
+            let prodObj = Array.isArray(q.products) ? q.products[0] : q.products;
+            let pTitle = prodObj?.title || 'Producto Generales / Eliminados';
             if (!pStats[pTitle]) {
                 pStats[pTitle] = { facturado: 0, ganado: 0 };
             }
