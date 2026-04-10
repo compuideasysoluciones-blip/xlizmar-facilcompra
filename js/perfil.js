@@ -118,7 +118,7 @@ async function loadWalletStats(userId) {
                     }
                 }
 
-                pTitle = pTitle || 'Producto Sin Nombre';
+                pTitle = pTitle || 'Producto Retirado del Catálogo';
                 pImage = pImage || 'https://via.placeholder.com/150?text=No+Ref';
                 let current = count || 1;
                 let percent = Math.min(100, Math.round((current / target) * 100));
@@ -182,7 +182,7 @@ async function loadWalletStats(userId) {
                     }
                 }
 
-                pTitle = pTitle || 'Producto Sin Nombre';
+                pTitle = pTitle || 'Producto Retirado del Catálogo';
                 pImage = pImage || 'https://via.placeholder.com/150?text=No+Ref';
                 
                 let dateFmt = new Date(q.created_at).toLocaleDateString('es-CO');
