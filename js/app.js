@@ -68,10 +68,7 @@ async function loadCatalog() {
                         <div style="display:flex; align-items:center; justify-content: space-between; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.08);">
                             <div style="display:flex; flex-direction:column; gap:3px;">
                                 <span style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--brand-500); font-weight:900;"><i data-lucide="award" style="width:12px; display:inline;"></i> ALIANZA OFICIAL</span>
-                                <div style="display:flex; flex-direction:column; line-height: 1.2;">
-                                    <span style="font-size:1rem; font-weight:700; color:white;">XLizmar & ${storeName}</span>
-                                    <span style="font-size:0.65rem; font-weight:800; color:var(--brand-500); letter-spacing:0.5px;">FÁCIL COMPRA</span>
-                                </div>
+                                <span style="font-size:1rem; font-weight:700; color:white;">XLizmar & ${storeName}</span>
                                 <a href="tel:${storePhone}" style="font-size:0.75rem; color:#10b981; text-decoration:none; margin-top:2px;">
                                     <i data-lucide="phone" style="width:12px; display:inline; vertical-align:middle;"></i> Llama a su Oficina: ${storePhone}
                                 </a>
@@ -84,8 +81,8 @@ async function loadCatalog() {
 
                         <h3>${p.title}</h3>
                         <div class="pricing">
-                            <span class="retail-price">Precio Regular: $${Number(p.retail_price).toLocaleString('es-CO')} <span style="font-size: 0.7em; opacity: 0.8;">(IVA Incluido)</span></span>
-                            <span class="group-price">Precio de Grupo: $${groupPrice.toLocaleString('es-CO')} <span style="font-size: 0.7em; opacity: 0.8;">(IVA Incluido)</span></span>
+                            <span class="retail-price">Precio Regular: $${Number(p.retail_price).toLocaleString('es-CO')}</span>
+                            <span class="group-price">Precio de Grupo: $${groupPrice.toLocaleString('es-CO')}</span>
                         </div>
                         
                         <div class="progress-section">
@@ -501,89 +498,3 @@ async function pauseAdminProduct(productId) {
         alert("❌ Error crítico en el servidor: " + err.message);
     }
 }
-
-// ------ LÓGICA DE RESUMEN FINANCIERO ------
-async function openFinanzasModal() {
-    if (!window.supabaseClient) return;
-    
-    document.getElementById('finanzas-modal').classList.remove('hidden');
-    document.getElementById('finanzas-facturado').innerText = "Calculando...";
-    document.getElementById('finanzas-ganado').innerText = "Calculando...";
-
-    try {
-        // Traemos todas las filas pagadas/postuladas en el sistema (incluyendo nombre de producto cruzado)
-        const { data: queues, error } = await window.supabaseClient
-            .from('queues')
-            .select('amount_paid, platform_fee, products(title)');
-
-        if (error) throw error;
-
-        let totalFacturado = 0;
-        let totalGanado = 0;
-        let pStats = {};
-
-        queues.forEach(q => {
-            let p = Number(q.amount_paid) || 0;
-            let f = Number(q.platform_fee) || 0;
-            
-            totalFacturado += p;
-            totalGanado += f;
-            
-            let prodObj = Array.isArray(q.products) ? q.products[0] : q.products;
-            let pTitle = prodObj?.title || 'Producto Generales / Eliminados';
-            if (!pStats[pTitle]) {
-                pStats[pTitle] = { facturado: 0, ganado: 0 };
-            }
-            pStats[pTitle].facturado += p;
-            pStats[pTitle].ganado += f;
-        });
-
-        // Formateadora de moneda
-        const formatter = new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            minimumFractionDigits: 0
-        });
-
-        document.getElementById('finanzas-facturado').innerText = formatter.format(totalFacturado);
-        document.getElementById('finanzas-ganado').innerText = formatter.format(totalGanado);
-
-        // Armado de Desglose UI
-        let desgloseHtml = '';
-        for (const [title, stats] of Object.entries(pStats)) {
-            desgloseHtml += `
-                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid var(--brand-500);">
-                    <div style="flex: 2; padding-right:10px;">
-                        <span style="display:block; font-weight: 700; color: white; font-size: 0.9rem;">${title}</span>
-                    </div>
-                    <div style="flex: 1; text-align: right; margin-right: 1rem;">
-                        <span style="display:block; font-size: 0.75rem; color: var(--text-secondary);">Caja</span>
-                        <span style="font-weight: 600; color: white; font-size: 0.85rem;">${formatter.format(stats.facturado)}</span>
-                    </div>
-                    <div style="flex: 1; text-align: right;">
-                        <span style="display:block; font-size: 0.75rem; color: var(--text-secondary);">Comisión</span>
-                        <span style="font-weight: bold; color: #10b981; font-size: 0.85rem;">${formatter.format(stats.ganado)}</span>
-                    </div>
-                </div>
-            `;
-        }
-        
-        if (Object.keys(pStats).length === 0) {
-            desgloseHtml = '<p style="text-align: center; color: var(--text-secondary); font-size: 0.85rem;">No hay transacciones registradas aún.</p>';
-        }
-
-        document.getElementById('finanzas-desglose').innerHTML = desgloseHtml;
-        lucide.createIcons();
-        
-    } catch (err) {
-        document.getElementById('finanzas-facturado').innerText = "Error";
-        document.getElementById('finanzas-ganado').innerText = "Error";
-        document.getElementById('finanzas-desglose').innerHTML = '<p style="color:red; text-align:center;">Error al cargar datos de Base de Datos</p>';
-        console.error("Error cargando finanzas:", err);
-    }
-}
-
-function closeFinanzasModal() {
-    document.getElementById('finanzas-modal').classList.add('hidden');
-}
-

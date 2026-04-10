@@ -20,10 +20,10 @@ async function consultarRetiro(e) {
     btn.disabled = true;
 
     try {
-        const { data, error } = await window.supabaseClient.rpc('consultar_despacho_aliado', {
-            p_clave_acceso: clave,
-            p_document_id: documento,
-            p_claim_pin: pin
+        const { data, error } = await window.supabaseClient.rpc('validar_pin_despacho', {
+            p_clave_aliado: clave,
+            p_documento_cliente: documento,
+            p_pin_retiro: pin
         });
 
         if (error) throw error;
@@ -33,8 +33,8 @@ async function consultarRetiro(e) {
             document.getElementById('despacho-form').style.display = 'none';
             document.getElementById('resultado-panel').style.display = 'block';
             
-            document.getElementById('res-cliente').innerText = `${data.client_name} (CC. ${documento})`;
-            document.getElementById('res-producto').innerText = data.product;
+            document.getElementById('res-cliente').innerText = data.full_name;
+            document.getElementById('res-producto').innerText = data.product_title;
             document.getElementById('res-queue-id').value = data.queue_id;
             
             lucide.createIcons();
@@ -58,9 +58,9 @@ async function firmarDespacho() {
     btn.disabled = true;
 
     try {
-        const { data, error } = await window.supabaseClient.rpc('entregar_articulo_aliado', {
-            p_clave_acceso: clave,
-            p_queue_id: queueId
+        const { data, error } = await window.supabaseClient.rpc('confirmar_despacho_aliado', {
+            p_queue_id: queueId,
+            p_clave_aliado: clave
         });
 
         if (error) throw error;
