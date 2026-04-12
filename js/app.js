@@ -55,6 +55,25 @@ async function loadCatalog() {
             const storeName = p.store_name || 'XLizmar Central';
             const storePhone = p.store_phone || 'Soporte XLizmar';
             
+            // Validar si tiene stock físico suficiente para abrir OTRO lote más
+            const inventoryStock = p.inventory_stock !== undefined ? p.inventory_stock : target;
+            const isSoldOut = inventoryStock < target;
+            
+            let actionHtml = '';
+            if (isSoldOut) {
+                actionHtml = `
+                    <button class="w-full mt-4" style="background-color: #475569; color: white; padding: 0.8rem; border-radius: 8px; border: none; font-weight: bold; cursor: not-allowed; display:flex; align-items:center; justify-content:center; gap:8px;" disabled>
+                        <i data-lucide="lock" style="width:18px;"></i> Artículo Adjudicado y Bloqueado
+                    </button>
+                    <p class="terms-text" style="color:#ef4444;"><i data-lucide="alert-circle" style="width:12px;"></i> Esta alianza completó sus grupos y cerró adjudicaciones temporalmente.</p>
+                `;
+            } else {
+                actionHtml = `
+                    <button class="btn-primary w-full mt-4" onclick="joinGroup(event, '${p.id}', ${groupPrice})">Separar Cupo con $${groupPrice.toLocaleString('es-CO')}</button>
+                    <p class="terms-text"><i data-lucide="shield-check" style="width:12px;"></i> Tu dinero congelado. Reembolso si no se llena en 15 días.</p>
+                `;
+            }
+            
             // Creamos un cajón premium blanco donde meter siempre el logo de la tienda para que resalte
             const storeLogoHtml = p.store_logo_url 
                 ? `<img src="${p.store_logo_url}" alt="${storeName}" style="max-width:100%; max-height:100%; object-fit:contain;">`
@@ -97,8 +116,7 @@ async function loadCatalog() {
                             </div>
                         </div>
 
-                        <button class="btn-primary w-full mt-4" onclick="joinGroup(event, '${p.id}', ${groupPrice})">Separar Cupo con $${groupPrice.toLocaleString('es-CO')}</button>
-                        <p class="terms-text"><i data-lucide="shield-check" style="width:12px;"></i> Tu dinero congelado. Reembolso si no se llena en 15 días.</p>
+                        ${actionHtml}
                         
                         ${superClaveActiva ? `
                         <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
