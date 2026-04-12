@@ -71,7 +71,7 @@ async function loadWalletStats(userId) {
 
         // Clasificar listas
         const waiting = myQueues.filter(q => q.status === 'WAITING');
-        const released = myQueues.filter(q => q.status === 'RELEASED');
+        const released = myQueues.filter(q => q.status === 'RELEASED' || q.status === 'SHIPPED');
         
         // Calcular Platas
         let totalInvested = waiting.reduce((sum, item) => sum + Number(item.amount_paid), 0);
@@ -187,23 +187,36 @@ async function loadWalletStats(userId) {
                 
                 let dateFmt = new Date(q.created_at).toLocaleDateString('es-CO');
                 
+                let isShipped = q.status === 'SHIPPED';
+                let centerStatusHtml = isShipped 
+                    ? `
+                            <span class="invoice-status-released" style="background:rgba(5, 150, 105, 0.2); border: 1px solid #059669; color:#34d399;">🏅 ARTÍCULO ENTREGADO</span>
+                            <div style="margin-top: 10px; padding: 10px; border: 1px solid rgba(5, 150, 105, 0.4); border-radius: 8px; background: rgba(5, 150, 105, 0.1);">
+                                <div style="font-size: 0.8rem; color: #34d399; font-weight:bold; text-transform:uppercase;">¡RECLAMADO EXITOSAMENTE!</div>
+                                <div style="font-size: 0.7rem; margin-top:3px; color: white;">Gracias por confiar en XLizmar</div>
+                            </div>
+                    `
+                    : `
+                            <span class="invoice-status-released">📦 GRUPO COMPLETADO</span>
+                            <div style="margin-top: 10px; padding: 10px; border: 1px dashed #10b981; border-radius: 8px; background: rgba(16, 185, 129, 0.1);">
+                                <div style="font-size: 0.65rem; color: #10b981; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">PIN de Retiro en Tienda:</div>
+                                <div style="font-size: 1.5rem; letter-spacing: 4px; font-weight: 900; color: white; font-family: monospace;">${q.claim_pin}</div>
+                            </div>
+                    `;
+                
                 rHtml += `
-                    <div class="invoice-card" style="border-left: 4px solid #10b981;">
+                    <div class="invoice-card" style="border-left: 4px solid ${isShipped ? '#34d399' : '#10b981'};">
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <img src="${pImage}" style="width:50px; height:50px; border-radius:8px; object-fit:cover;">
                             <div>
-                                <div style="font-size:0.75rem; color:#10b981; font-weight:900; text-transform:uppercase; margin-bottom: 3px; letter-spacing: 0.5px;">Producto Adjudicado</div>
+                                <div style="font-size:0.75rem; color:${isShipped ? '#34d399' : '#10b981'}; font-weight:900; text-transform:uppercase; margin-bottom: 3px; letter-spacing: 0.5px;">Producto Adjudicado</div>
                                 <h4 style="margin:0; font-size:1.1rem; font-weight:700;">${pTitle}</h4>
                                 <span style="font-size:0.75rem; color:var(--text-secondary); font-family:monospace;">ID: ${q.id} • Lote Liberado el ${dateFmt}</span>
                             </div>
                         </div>
                         
                         <div style="text-align:center;">
-                            <span class="invoice-status-released">📦 GRUPO COMPLETADO</span>
-                            <div style="margin-top: 10px; padding: 10px; border: 1px dashed #10b981; border-radius: 8px; background: rgba(16, 185, 129, 0.1);">
-                                <div style="font-size: 0.65rem; color: #10b981; font-weight:bold; letter-spacing:1px; text-transform:uppercase;">PIN de Retiro en Tienda:</div>
-                                <div style="font-size: 1.5rem; letter-spacing: 4px; font-weight: 900; color: white; font-family: monospace;">${q.claim_pin}</div>
-                            </div>
+                            ${centerStatusHtml}
                         </div>
                         
                         <div style="text-align:right;">
