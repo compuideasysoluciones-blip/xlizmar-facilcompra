@@ -60,6 +60,20 @@
                     <input type="number" id="admin-stock" placeholder="Ej: 50 (Televisores totales)" required style="width:100%; padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-top:0.5rem;">
                 </div>
                 <div>
+                    <label style="font-size: 0.8rem; color: var(--brand-500); font-weight: bold;">Ciudad de Entrega (Restricción de Compra)</label>
+                    <select id="admin-city" required style="width:100%; padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-top:0.5rem; appearance: none;">
+                        <option value="" disabled selected>Selecciona la ciudad del almacén</option>
+                        <option value="Nacional">A nivel Nacional (Envío a toda Colombia)</option>
+                        <option value="Bogotá">Bogotá</option>
+                        <option value="Medellín">Medellín</option>
+                        <option value="Cali">Cali</option>
+                        <option value="Barranquilla">Barranquilla</option>
+                        <option value="Cartagena">Cartagena</option>
+                        <option value="Bucaramanga">Bucaramanga</option>
+                        <option value="Pereira">Pereira</option>
+                    </select>
+                </div>
+                <div>
                     <label style="font-size: 0.8rem; color: var(--brand-500); font-weight: bold;">Subir fotografía del producto desde tu celular/PC (.jpg/.png)</label>
                     <input type="file" id="admin-image-file" accept="image/png, image/jpeg, image/webp" required style="width:100%; padding:1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.3); color:white; margin-top:0.5rem; cursor: pointer;">
                 </div>
@@ -145,6 +159,20 @@
                 <div class="input-group">
                     <label>Correo Electrónico</label>
                     <input type="email" id="reg-email" required placeholder="tu@correo.com">
+                </div>
+                <div class="input-group">
+                    <label>Ciudad de Residencia</label>
+                    <select id="reg-city" required style="width:100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); margin-top: 5px;">
+                        <option value="" disabled selected>Selecciona tu ciudad</option>
+                        <option value="Bogotá">Bogotá</option>
+                        <option value="Medellín">Medellín</option>
+                        <option value="Cali">Cali</option>
+                        <option value="Barranquilla">Barranquilla</option>
+                        <option value="Cartagena">Cartagena</option>
+                        <option value="Bucaramanga">Bucaramanga</option>
+                        <option value="Pereira">Pereira</option>
+                        <option value="Otra">Otra / A nivel Nacional</option>
+                    </select>
                 </div>
                 <div class="input-group">
                     <label>Contraseña</label>
