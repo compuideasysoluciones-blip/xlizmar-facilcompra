@@ -69,7 +69,7 @@ async function loadCatalog() {
                 `;
             } else {
                 actionHtml = `
-                    <button class="btn-primary w-full mt-4" onclick="joinGroup(event, '${p.id}', ${groupPrice})">Separar Cupo con $${groupPrice.toLocaleString('es-CO')}</button>
+                    <button class="btn-primary w-full mt-4" onclick="joinGroup(event, '${p.id}', ${groupPrice}, '${p.city || 'Nacional'}')">Separar Cupo con $${groupPrice.toLocaleString('es-CO')}</button>
                     <p class="terms-text"><i data-lucide="shield-check" style="width:12px;"></i> Tu dinero congelado. Reembolso si no se llena en 15 días.</p>
                 `;
             }
@@ -89,7 +89,7 @@ async function loadCatalog() {
                                 <span style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--brand-500); font-weight:900;"><i data-lucide="award" style="width:12px; display:inline;"></i> ALIANZA OFICIAL</span>
                                 <div style="display:flex; flex-direction:column; line-height: 1.2;">
                                     <span style="font-size:1rem; font-weight:700; color:white;">XLizmar & ${storeName}</span>
-                                    <span style="font-size:0.65rem; font-weight:800; color:var(--brand-500); letter-spacing:0.5px;">FÁCIL COMPRA</span>
+                                    <span style="font-size:0.65rem; font-weight:800; color:var(--brand-500); letter-spacing:0.5px;">FÁCIL COMPRA | BODEGA: ${p.city ? p.city.toUpperCase() : 'NACIONAL'}</span>
                                 </div>
                                 <a href="tel:${storePhone}" style="font-size:0.75rem; color:#10b981; text-decoration:none; margin-top:2px;">
                                     <i data-lucide="phone" style="width:12px; display:inline; vertical-align:middle;"></i> Llama a su Oficina: ${storePhone}
@@ -144,7 +144,7 @@ async function loadCatalog() {
 }
 
 // Función de Compra Grupal
-async function joinGroup(event, productId, groupPrice) {
+async function joinGroup(event, productId, groupPrice, productCity) {
     if (!window.supabaseClient) {
         alert("⚠️ Falta conectar la base de datos.");
         return;
@@ -154,15 +154,25 @@ async function joinGroup(event, productId, groupPrice) {
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     if (!session) {
         openAuthModal();
-    } else {
-        // Simulador de Mercado Pago
-        const confirmacion = confirm(`💳 SIMULACIÓN DE MERCADO PAGO:\n\n¿Deseas pagar realmente $${groupPrice.toLocaleString('es-CO')} COP para apartar tu cupo en la fila de este producto?`);
-        if (confirmacion) {
-            // Buscamos el nombre del producto para el recibo
-            const productTitleEle = event.target.closest('.product-card').querySelector('h3');
-            const pTitle = productTitleEle ? productTitleEle.innerText : 'Producto de Grupo';
-            simulatePayment(event.target, productId, groupPrice, pTitle);
-        }
+        return;
+    }
+
+    // Validar ciudad del producto vs ciudad del usuario
+    const { data: profile } = await window.supabaseClient.from('profiles').select('city').eq('id', session.user.id).single();
+    const userCity = profile?.city || 'Nacional';
+
+    if (productCity !== 'Nacional' && userCity !== 'Otra' && userCity !== 'Nacional' && productCity !== userCity) {
+        alert(`🚫 RESTRICCIÓN DE ALMACÉN AUTÓNOMO: Este artículo solo está disponible en la bodega de ${productCity}.\n\nSegún tu perfil, tú te encuentras en ${userCity}, por lo tanto, por logística de transporte, no podemos entregarte el artículo si te unes a este grupo.\n\nPor favor, busca ofertas disponibles en ${userCity} o productos marcados como "Nacional".`);
+        return;
+    }
+
+    // Simulador de Mercado Pago
+    const confirmacion = confirm(`💳 SIMULACIÓN DE MERCADO PAGO:\n\n¿Deseas pagar realmente $${groupPrice.toLocaleString('es-CO')} COP para apartar tu cupo en la fila de este producto?`);
+    if (confirmacion) {
+        // Buscamos el nombre del producto para el recibo
+        const productTitleEle = event.target.closest('.product-card').querySelector('h3');
+        const pTitle = productTitleEle ? productTitleEle.innerText : 'Producto de Grupo';
+        simulatePayment(event.target, productId, groupPrice, pTitle);
     }
 }
 
@@ -294,6 +304,7 @@ async function handleRegister(e) {
     const fullName = document.getElementById('reg-name').value;
     const documentId = document.getElementById('reg-document').value;
     const phone = document.getElementById('reg-phone').value;
+    const city = document.getElementById('reg-city').value;
 
     try {
         // 1. Crear usuario en el servicio seguro de Autenticación con Metadata
@@ -304,7 +315,8 @@ async function handleRegister(e) {
                 data: {
                     full_name: fullName,
                     document_id: documentId,
-                    phone: phone
+                    phone: phone,
+                    city: city
                 }
             }
         });
@@ -419,6 +431,7 @@ async function submitAdminProduct(e) {
         const feeP = Number(document.getElementById('admin-fee').value || 30);
         const targetQ = Number(document.getElementById('admin-target').value);
         const inventoryStock = Number(document.getElementById('admin-stock').value || targetQ);
+        const city = document.getElementById('admin-city').value || 'Nacional';
         
         // Bloqueo de Negocio: Validar que la tienda tenga cómo surtir mínimo 1 grupo
         if (inventoryStock < targetQ) {
@@ -472,7 +485,8 @@ async function submitAdminProduct(e) {
             p_inventory_stock: inventoryStock,
             p_store_phone: storePhone,
             p_discount_percentage: discountP,
-            p_platform_fee_percentage: feeP
+            p_platform_fee_percentage: feeP,
+            p_city: city
         });
 
         if (error) throw error;
@@ -603,5 +617,77 @@ async function openFinanzasModal() {
 
 function closeFinanzasModal() {
     document.getElementById('finanzas-modal').classList.add('hidden');
+}
+
+// ------ LÓGICA DE NOTIFICACIONES MODO DIOS ------
+async function openNotificacionesAdminModal() {
+    if (!window.supabaseClient) return;
+    if (!superClaveActiva) {
+        alert("Por favor, inicia el Modo Dios e ingresa la contraseña primero.");
+        return;
+    }
+    
+    document.getElementById('notificaciones-admin-modal').classList.remove('hidden');
+    const listContainer = document.getElementById('notificaciones-admin-list');
+    listContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem;">Consultando bóveda de adjudicaciones...</p>';
+
+    try {
+        const { data, error } = await window.supabaseClient.rpc('get_admin_notifications', {
+            p_admin_password: superClaveActiva
+        });
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            listContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); font-size: 0.9rem;">Aún no se ha llenado ningún grupo. Todo está en proceso.</p>';
+            return;
+        }
+
+        const formatter = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 });
+        let html = '';
+
+        data.forEach(n => {
+            let usersHtml = '';
+            if (n.users_involved && Array.isArray(n.users_involved)) {
+                usersHtml = n.users_involved.map(u => `<div style="font-size:0.75rem; color:#cbd5e1; margin-top:3px;"><i data-lucide="user" style="width:10px; display:inline;"></i> ${u.name} - ${formatter.format(u.amount)}</div>`).join('');
+            }
+
+            const dateStr = new Date(n.created_at).toLocaleString('es-CO');
+
+            html += `
+                <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #8b5cf6;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 0.5rem;">
+                        <h4 style="color: white; margin:0; font-size: 1.1rem;"><i data-lucide="package-check" style="width:18px; color:#10b981; display:inline; vertical-align:-2px;"></i> ${n.product_title}</h4>
+                        <span style="font-size:0.7rem; color:var(--text-secondary); background:rgba(0,0,0,0.3); padding:3px 8px; border-radius:12px;">${dateStr}</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; margin-top:1rem;">
+                        <div style="background:rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 8px;">
+                            <span style="display:block; font-size:0.75rem; color:var(--text-secondary);">Recaudo Lote</span>
+                            <span style="font-size:1rem; font-weight:bold; color:#10b981;">${formatter.format(n.total_value)}</span>
+                        </div>
+                        <div style="background:rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 8px;">
+                            <span style="display:block; font-size:0.75rem; color:var(--text-secondary);">Precio Ref.</span>
+                            <span style="font-size:1rem; font-weight:bold; color:white;">${formatter.format(n.retail_price)}</span>
+                        </div>
+                    </div>
+                    <div style="margin-top:0.5rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top:1rem;">
+                        <span style="display:block; font-size:0.8rem; font-weight:bold; color:var(--brand-500); margin-bottom:0.5rem;">Ganadores del Lote:</span>
+                        ${usersHtml}
+                    </div>
+                </div>
+            `;
+        });
+
+        listContainer.innerHTML = html;
+        lucide.createIcons();
+
+    } catch(err) {
+        console.error(err);
+        listContainer.innerHTML = `<p style="text-align: center; color: #ef4444; font-size: 0.9rem;">Error al consultar: ${err.message}</p>`;
+    }
+}
+
+function closeNotificacionesAdminModal() {
+    document.getElementById('notificaciones-admin-modal').classList.add('hidden');
 }
 
